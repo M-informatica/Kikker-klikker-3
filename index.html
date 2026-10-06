@@ -1,0 +1,3214 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kikker Arcade</title>
+
+  <style>
+    :root {
+      --green-dark: #123f35;
+      --green: #1f8f5f;
+      --green-light: #77d184;
+      --lime: #b9ec8c;
+      --blue: #209bc1;
+      --blue-dark: #12627e;
+      --water: #42bfe8;
+      --cream: #f4ffd9;
+      --yellow: #ffe45c;
+      --pink: #ff8fbe;
+      --white: #ffffff;
+      --shadow: 0 16px 40px rgba(11, 64, 67, .18);
+      --radius: 26px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--green-dark);
+      background:
+        radial-gradient(circle at 12% 15%, rgba(255,255,255,.55) 0 3%, transparent 3.2%),
+        radial-gradient(circle at 88% 18%, rgba(255,255,255,.35) 0 4%, transparent 4.2%),
+        linear-gradient(145deg, #baf1d0 0%, #8bddc4 35%, #60c9d8 100%);
+    }
+
+    body {
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    button {
+      font: inherit;
+    }
+
+    button:focus-visible,
+    a:focus-visible {
+      outline: 4px solid rgba(255,228,92,.85);
+      outline-offset: 3px;
+    }
+
+    .background-decoration {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 0;
+    }
+
+    .floating-lily {
+      position: absolute;
+      font-size: clamp(32px, 5vw, 72px);
+      opacity: .35;
+      animation: floaty 8s ease-in-out infinite;
+      filter: drop-shadow(0 10px 14px rgba(0,0,0,.08));
+    }
+
+    .floating-lily:nth-child(1) {
+      top: 7%;
+      left: 4%;
+    }
+
+    .floating-lily:nth-child(2) {
+      top: 65%;
+      left: 2%;
+      animation-delay: -3s;
+    }
+
+    .floating-lily:nth-child(3) {
+      top: 12%;
+      right: 4%;
+      animation-delay: -5s;
+    }
+
+    .floating-lily:nth-child(4) {
+      bottom: 4%;
+      right: 7%;
+      animation-delay: -1s;
+    }
+
+    @keyframes floaty {
+      0%,100% { transform: translateY(0) rotate(-3deg); }
+      50% { transform: translateY(-18px) rotate(4deg); }
+    }
+
+    #app {
+      position: relative;
+      z-index: 1;
+      width: min(1180px, calc(100% - 22px));
+      margin: 0 auto;
+      padding: 14px 0 40px;
+    }
+
+    .site-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 16px;
+      background: rgba(255,255,255,.84);
+      border: 2px solid rgba(255,255,255,.72);
+      border-radius: 24px;
+      padding: 12px 18px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .brand-frog {
+      width: 54px;
+      height: 54px;
+      border-radius: 17px;
+      display: grid;
+      place-items: center;
+      font-size: 34px;
+      background: linear-gradient(145deg, #d8ff95, #64ce6a);
+      box-shadow: inset 0 -5px 0 rgba(0,0,0,.08);
+    }
+
+    .brand-name {
+      font-weight: 900;
+      font-size: clamp(20px, 3vw, 30px);
+      line-height: .95;
+      letter-spacing: -1px;
+    }
+
+    .brand-name small {
+      display: block;
+      margin-top: 5px;
+      font-size: 11px;
+      letter-spacing: 2px;
+      color: var(--blue-dark);
+      text-transform: uppercase;
+    }
+
+    .header-stats {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .stat-pill {
+      border-radius: 999px;
+      padding: 9px 14px;
+      font-weight: 900;
+      font-size: 14px;
+      background: #eaffd8;
+      border: 2px solid rgba(31,143,95,.17);
+      white-space: nowrap;
+    }
+
+    .stat-pill.blue {
+      background: #dcf6ff;
+    }
+
+    .page {
+      display: none;
+      animation: pageIn .3s ease;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    @keyframes pageIn {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .panel {
+      background: rgba(255,255,255,.9);
+      border: 2px solid rgba(255,255,255,.82);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      position: relative;
+      min-height: 300px;
+      overflow: hidden;
+      padding: clamp(28px, 5vw, 58px);
+      background:
+        linear-gradient(120deg, rgba(13,104,82,.96), rgba(23,152,137,.86)),
+        #1f8f5f;
+      color: white;
+    }
+
+    .hero::after {
+      content: "🌸";
+      position: absolute;
+      right: 5%;
+      bottom: -18px;
+      font-size: clamp(100px, 17vw, 200px);
+      opacity: .28;
+      transform: rotate(-12deg);
+    }
+
+    .hero-copy {
+      position: relative;
+      z-index: 2;
+      max-width: 660px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      border-radius: 999px;
+      padding: 7px 12px;
+      margin-bottom: 13px;
+      background: rgba(255,255,255,.14);
+      border: 1px solid rgba(255,255,255,.23);
+      font-size: 12px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 1.7px;
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin-top: 0;
+    }
+
+    h1 {
+      margin-bottom: 13px;
+      font-size: clamp(42px, 7vw, 82px);
+      line-height: .9;
+      letter-spacing: -3px;
+    }
+
+    h2 {
+      margin-bottom: 11px;
+      font-size: clamp(28px, 4vw, 44px);
+      letter-spacing: -1.5px;
+    }
+
+    .hero p {
+      max-width: 590px;
+      margin-bottom: 22px;
+      font-size: 17px;
+      line-height: 1.5;
+      color: rgba(255,255,255,.9);
+    }
+
+    .btn {
+      appearance: none;
+      border: 0;
+      cursor: pointer;
+      border-radius: 15px;
+      padding: 12px 18px;
+      font-weight: 900;
+      transition: transform .14s ease, box-shadow .14s ease, opacity .14s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .btn:active {
+      transform: translateY(1px);
+    }
+
+    .btn-primary {
+      background: var(--yellow);
+      color: #314816;
+      box-shadow: 0 7px 0 #c7ae28;
+    }
+
+    .btn-secondary {
+      background: #e7fbff;
+      color: var(--blue-dark);
+      box-shadow: 0 6px 0 #aad7df;
+    }
+
+    .btn-green {
+      background: #74d979;
+      color: #123f35;
+      box-shadow: 0 6px 0 #4aab58;
+    }
+
+    .btn-danger {
+      background: #ff817b;
+      color: #591b18;
+      box-shadow: 0 6px 0 #cf5d58;
+    }
+
+    .btn[disabled] {
+      opacity: .48;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .section-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 15px;
+      margin: 28px 4px 14px;
+    }
+
+    .section-title h2 {
+      margin: 0;
+    }
+
+    .section-title p {
+      margin: 0;
+      color: #37615b;
+      font-size: 14px;
+    }
+
+    .game-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .game-card {
+      min-height: 240px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .game-card.active-game {
+      background:
+        radial-gradient(circle at 85% 18%, rgba(255,255,255,.45), transparent 18%),
+        linear-gradient(145deg, #d9ffba, #d8fbff);
+    }
+
+    .game-icon {
+      width: 76px;
+      height: 76px;
+      display: grid;
+      place-items: center;
+      border-radius: 23px;
+      font-size: 46px;
+      margin-bottom: 16px;
+      background: white;
+      box-shadow: 0 8px 22px rgba(17,82,70,.13);
+    }
+
+    .game-card h3 {
+      margin-bottom: 7px;
+      font-size: 22px;
+    }
+
+    .game-card p {
+      line-height: 1.45;
+      color: #476b65;
+      flex: 1;
+    }
+
+    .coming-soon {
+      filter: saturate(.65);
+      opacity: .72;
+    }
+
+    .soon-label {
+      position: absolute;
+      top: 15px;
+      right: -34px;
+      transform: rotate(35deg);
+      width: 135px;
+      padding: 6px 0;
+      background: #244e4b;
+      color: white;
+      text-align: center;
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .home-bottom {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    .mini-panel {
+      padding: 20px;
+    }
+
+    .mini-panel p:last-child {
+      margin-bottom: 0;
+    }
+
+    /* GAME */
+    .game-shell {
+      overflow: hidden;
+    }
+
+    .game-toolbar {
+      min-height: 64px;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 12px;
+      background: #113e38;
+      color: white;
+    }
+
+    .game-toolbar-left,
+    .game-toolbar-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .game-toolbar-right {
+      justify-content: flex-end;
+    }
+
+    .toolbar-btn {
+      min-height: 43px;
+      appearance: none;
+      border: 0;
+      border-radius: 13px;
+      background: rgba(255,255,255,.12);
+      color: white;
+      cursor: pointer;
+      font-weight: 900;
+      padding: 8px 13px;
+      transition: background .15s ease, transform .15s ease;
+    }
+
+    .toolbar-btn:hover {
+      background: rgba(255,255,255,.21);
+      transform: translateY(-1px);
+    }
+
+    .game-title {
+      text-align: center;
+      font-weight: 900;
+    }
+
+    .game-title small {
+      display: block;
+      margin-top: 2px;
+      font-size: 11px;
+      color: #c5fff2;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .canvas-wrap {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      padding: 12px;
+      background: #092f3e;
+    }
+
+    #gameCanvas {
+      width: min(100%, 900px);
+      height: auto;
+      max-height: 67vh;
+      border-radius: 18px;
+      display: block;
+      box-shadow: 0 10px 30px rgba(0,0,0,.28);
+      touch-action: none;
+      background: #39add7;
+    }
+
+    .game-message {
+      display: none;
+      position: absolute;
+      inset: 12px;
+      z-index: 10;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      border-radius: 18px;
+      background: rgba(6,35,37,.56);
+      backdrop-filter: blur(5px);
+    }
+
+    .game-message.show {
+      display: flex;
+    }
+
+    .message-card {
+      width: min(430px, 92%);
+      padding: 25px;
+      border-radius: 24px;
+      background: rgba(255,255,255,.96);
+      box-shadow: 0 20px 60px rgba(0,0,0,.25);
+      text-align: center;
+    }
+
+    .message-card .big-icon {
+      display: block;
+      margin-bottom: 7px;
+      font-size: 55px;
+    }
+
+    .message-card h2 {
+      margin-bottom: 8px;
+    }
+
+    .message-card p {
+      color: #46645e;
+      line-height: 1.45;
+    }
+
+    .game-footer {
+      padding: 12px 14px 15px;
+      background: #f2ffda;
+    }
+
+    .game-help {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .game-help-text {
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .mobile-controls {
+      display: grid;
+      grid-template-columns: repeat(3, 54px);
+      grid-template-rows: repeat(2, 47px);
+      gap: 5px;
+      justify-content: center;
+      user-select: none;
+    }
+
+    .control-btn {
+      appearance: none;
+      border: 0;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 21px;
+      font-weight: 900;
+      color: white;
+      background: #216d60;
+      box-shadow: inset 0 -4px 0 rgba(0,0,0,.2);
+      touch-action: manipulation;
+    }
+
+    .control-btn:active {
+      transform: translateY(2px);
+      box-shadow: inset 0 -2px 0 rgba(0,0,0,.18);
+    }
+
+    .control-up {
+      grid-column: 2;
+      grid-row: 1;
+    }
+
+    .control-left {
+      grid-column: 1;
+      grid-row: 2;
+    }
+
+    .control-jump {
+      grid-column: 2;
+      grid-row: 2;
+      background: #e6b82c;
+      color: #3b4216;
+      font-size: 13px;
+    }
+
+    .control-right {
+      grid-column: 3;
+      grid-row: 2;
+    }
+
+    .control-down {
+      grid-column: 3;
+      grid-row: 1;
+    }
+
+    .floating-score {
+      position: absolute;
+      z-index: 9;
+      pointer-events: none;
+      font-weight: 900;
+      font-size: 22px;
+      color: #fff9a7;
+      text-shadow: 0 2px 6px rgba(0,0,0,.5);
+      animation: scoreFloat .9s ease forwards;
+    }
+
+    @keyframes scoreFloat {
+      0% { transform: translate(-50%, 0) scale(.8); opacity: 0; }
+      20% { opacity: 1; }
+      100% { transform: translate(-50%, -60px) scale(1.2); opacity: 0; }
+    }
+
+    /* SHOP */
+    .page-head {
+      padding: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .page-head p {
+      margin: 0;
+      color: #416862;
+    }
+
+    .back-btn {
+      border: 0;
+      background: #dff7e0;
+      border-radius: 14px;
+      min-width: 44px;
+      min-height: 44px;
+      cursor: pointer;
+      font-size: 20px;
+      font-weight: 900;
+    }
+
+    .shop-grid {
+      margin-top: 16px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+    }
+
+    .skin-card {
+      display: flex;
+      flex-direction: column;
+      min-height: 280px;
+      padding: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .skin-preview {
+      height: 120px;
+      border-radius: 19px;
+      display: grid;
+      place-items: center;
+      margin-bottom: 15px;
+      background:
+        radial-gradient(circle at center, rgba(255,255,255,.65), rgba(255,255,255,.15)),
+        linear-gradient(145deg, #9be7ff, #6bc578);
+      font-size: 70px;
+    }
+
+    .skin-card h3 {
+      margin-bottom: 6px;
+      font-size: 18px;
+    }
+
+    .skin-card p {
+      color: #56716c;
+      font-size: 13px;
+      line-height: 1.4;
+      flex: 1;
+    }
+
+    .skin-price {
+      margin-bottom: 10px;
+      font-size: 17px;
+      font-weight: 900;
+    }
+
+    .owned-badge,
+    .selected-badge {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      padding: 6px 9px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .owned-badge {
+      background: #ddffd7;
+      color: #266129;
+    }
+
+    .selected-badge {
+      background: #fff29d;
+      color: #655214;
+    }
+
+    .next-unlock {
+      margin-top: 16px;
+      padding: 18px;
+      text-align: center;
+      border: 2px dashed rgba(18,63,53,.22);
+      border-radius: 22px;
+      background: rgba(255,255,255,.6);
+    }
+
+    /* DONATE */
+    .donate-layout {
+      display: grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: 16px;
+    }
+
+    .donate-main,
+    .donate-side {
+      padding: clamp(22px, 4vw, 40px);
+    }
+
+    .donate-main {
+      background:
+        radial-gradient(circle at 85% 20%, rgba(255,255,255,.7), transparent 18%),
+        linear-gradient(145deg, #e6ffd3, #b7f2ed);
+    }
+
+    .donate-frog {
+      font-size: 82px;
+      margin-bottom: 10px;
+    }
+
+    .donate-main p,
+    .donate-side p {
+      line-height: 1.55;
+      color: #43635c;
+    }
+
+    .donation-buttons {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin: 20px 0;
+    }
+
+    .donation-amount {
+      appearance: none;
+      border: 2px solid rgba(31,143,95,.2);
+      background: white;
+      color: var(--green-dark);
+      cursor: pointer;
+      border-radius: 16px;
+      padding: 16px;
+      font-weight: 900;
+      font-size: 17px;
+    }
+
+    .donation-amount:hover {
+      border-color: #55b964;
+      transform: translateY(-2px);
+    }
+
+    .bonus-box {
+      padding: 16px;
+      border-radius: 18px;
+      background: #fff6ad;
+      color: #574914;
+      font-weight: 800;
+      line-height: 1.4;
+    }
+
+    .fact-list {
+      margin: 0;
+      padding-left: 20px;
+      color: #43635c;
+      line-height: 1.7;
+    }
+
+    /* MODAL */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      background: rgba(8,37,39,.65);
+      backdrop-filter: blur(6px);
+    }
+
+    .modal-backdrop.show {
+      display: flex;
+    }
+
+    .modal-box {
+      width: min(460px, 100%);
+      padding: 25px;
+      border-radius: 25px;
+      background: white;
+      box-shadow: 0 25px 80px rgba(0,0,0,.3);
+      text-align: center;
+    }
+
+    .modal-icon {
+      font-size: 52px;
+      margin-bottom: 7px;
+    }
+
+    .modal-box p {
+      color: #476760;
+      line-height: 1.55;
+    }
+
+    .modal-buttons {
+      display: flex;
+      gap: 9px;
+      justify-content: center;
+      margin-top: 18px;
+    }
+
+    .toast {
+      position: fixed;
+      z-index: 150;
+      left: 50%;
+      bottom: 22px;
+      transform: translate(-50%, 30px);
+      max-width: min(550px, calc(100% - 30px));
+      padding: 13px 18px;
+      border-radius: 14px;
+      background: #133d39;
+      color: white;
+      font-weight: 800;
+      box-shadow: 0 12px 35px rgba(0,0,0,.22);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .2s ease, transform .2s ease;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+
+    .demo-notice {
+      margin-top: 18px;
+      font-size: 12px;
+      color: #56756e;
+    }
+
+    @media (max-width: 900px) {
+      .game-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .home-bottom {
+        grid-template-columns: 1fr;
+      }
+
+      .shop-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .donate-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .game-toolbar {
+        grid-template-columns: 1fr auto;
+      }
+
+      .game-title {
+        display: none;
+      }
+    }
+
+    @media (max-width: 620px) {
+      #app {
+        width: min(100% - 10px, 1180px);
+        padding-top: 5px;
+      }
+
+      .site-header {
+        padding: 9px 10px;
+        border-radius: 18px;
+      }
+
+      .brand-frog {
+        width: 43px;
+        height: 43px;
+        font-size: 27px;
+      }
+
+      .brand-name {
+        font-size: 18px;
+      }
+
+      .brand-name small {
+        display: none;
+      }
+
+      .header-stats .stat-pill {
+        padding: 7px 9px;
+        font-size: 11px;
+      }
+
+      .hero {
+        padding: 30px 20px;
+        min-height: 310px;
+      }
+
+      h1 {
+        font-size: 48px;
+      }
+
+      .shop-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .page-head {
+        padding: 20px;
+      }
+
+      .game-toolbar {
+        padding: 7px;
+      }
+
+      .toolbar-btn {
+        min-height: 40px;
+        padding: 7px 9px;
+        font-size: 12px;
+      }
+
+      .game-help {
+        flex-direction: column;
+      }
+
+      .game-help-text {
+        text-align: center;
+      }
+
+      .canvas-wrap {
+        padding: 5px;
+      }
+
+      .game-message {
+        inset: 5px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="background-decoration" aria-hidden="true">
+    <div class="floating-lily">🪷</div>
+    <div class="floating-lily">🌸</div>
+    <div class="floating-lily">🪷</div>
+    <div class="floating-lily">🌸</div>
+  </div>
+
+  <div id="app">
+
+    <header class="site-header" id="siteHeader">
+      <div class="brand" onclick="navigate('home')">
+        <div class="brand-frog">🐸</div>
+        <div class="brand-name">
+          Kikker Arcade
+          <small>Spring. Scoor. Verzamel.</small>
+        </div>
+      </div>
+
+      <div class="header-stats">
+        <div class="stat-pill" id="headerPoints">🪰 0 punten</div>
+        <div class="stat-pill blue" id="headerLevel">🏆 Level 1</div>
+      </div>
+    </header>
+
+    <!-- HOME -->
+    <section class="page active" id="page-home">
+
+      <div class="hero panel">
+        <div class="hero-copy">
+          <div class="eyebrow">🐸 Welkom in de Kikker Arcade</div>
+
+          <h1>Spring erin!</h1>
+
+          <p>
+            Een arcade vol kikker-games. Spring over rivieren, vang vliegen,
+            verdien punten en verzamel steeds gekkere kikker-skins.
+          </p>
+
+          <button class="btn btn-primary" onclick="startGameFromHome()">
+            ▶ Speel Kikker Klikker
+          </button>
+        </div>
+      </div>
+
+      <div class="section-title">
+        <div>
+          <h2>Onze spellen</h2>
+          <p>Dit is nog maar het begin van de Kikker Arcade.</p>
+        </div>
+      </div>
+
+      <div class="game-grid">
+
+        <article class="game-card panel active-game">
+          <div class="game-icon">🐸</div>
+          <h3>Kikker Klikker</h3>
+          <p>
+            Steek de rivier over via boomstammen en leliebladen.
+            Vang onderweg vliegen en probeer steeds verder te komen.
+          </p>
+          <button class="btn btn-green" onclick="startGameFromHome()">
+            Spelen
+          </button>
+        </article>
+
+        <article class="game-card panel coming-soon">
+          <div class="soon-label">Binnenkort</div>
+          <div class="game-icon">🧠</div>
+          <h3>Kikker Memory</h3>
+          <p>
+            Zoek de juiste kikkerparen bij elkaar voordat de tijd voorbij is.
+          </p>
+          <button class="btn btn-secondary" disabled>
+            Nog niet beschikbaar
+          </button>
+        </article>
+
+        <article class="game-card panel coming-soon">
+          <div class="soon-label">Binnenkort</div>
+          <div class="game-icon">🪰</div>
+          <h3>Vliegenvanger</h3>
+          <p>
+            Hoeveel vliegen kun jij met je kikkertong vangen voordat ze ontsnappen?
+          </p>
+          <button class="btn btn-secondary" disabled>
+            Nog niet beschikbaar
+          </button>
+        </article>
+
+      </div>
+
+      <div class="home-bottom">
+        <div class="mini-panel panel">
+          <h3>🛒 Kikkerwinkel</h3>
+          <p>
+            Gebruik de punten die je tijdens Kikker Klikker verdient
+            om nieuwe skins vrij te spelen.
+          </p>
+          <button class="btn btn-secondary" onclick="navigate('shop')">
+            Naar de shop
+          </button>
+        </div>
+
+        <div class="mini-panel panel">
+          <h3>🐸 Help de paddentrek</h3>
+          <p>
+            Bekijk onze demo-donatiepagina. Voor iedere demo-donatie
+            krijg je 100 bonuspunten.
+          </p>
+          <button class="btn btn-green" onclick="openDonationPage()">
+            Bekijk paddentrek
+          </button>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- GAME -->
+    <section class="page" id="page-game">
+
+      <div class="game-shell panel">
+
+        <div class="game-toolbar">
+
+          <div class="game-toolbar-left">
+            <button class="toolbar-btn" onclick="navigate('home')" title="Terug">
+              ← Terug
+            </button>
+
+            <button class="toolbar-btn" onclick="navigate('shop')" title="Kikkerwinkel">
+              🛒 Shop
+            </button>
+          </div>
+
+          <div class="game-title">
+            Kikker Klikker
+            <small id="gameLevelLabel">Level 1</small>
+          </div>
+
+          <div class="game-toolbar-right">
+            <button class="toolbar-btn" onclick="openDonationPage()" title="Paddentrek">
+              🐸 Paddentrek
+            </button>
+          </div>
+
+        </div>
+
+        <div class="canvas-wrap" id="canvasWrap">
+
+          <canvas
+            id="gameCanvas"
+            width="900"
+            height="620"
+            aria-label="Kikker Klikker spel">
+          </canvas>
+
+          <div class="game-message" id="gameMessage">
+            <div class="message-card">
+              <span class="big-icon" id="messageIcon">🐸</span>
+              <h2 id="messageTitle">Klaar?</h2>
+              <p id="messageText"></p>
+              <button class="btn btn-primary" id="messageButton">
+                Verder
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="game-footer">
+          <div class="game-help">
+
+            <div class="game-help-text">
+              <strong>Besturing:</strong><br>
+              ↑ ↓ ← → = springen &nbsp; • &nbsp; spatie = vooruit springen<br>
+              Blijf uit het water en vang zoveel mogelijk vliegen.
+            </div>
+
+            <div class="mobile-controls">
+              <button class="control-btn control-up" data-move="up">↑</button>
+              <button class="control-btn control-down" data-move="down">↓</button>
+              <button class="control-btn control-left" data-move="left">←</button>
+              <button class="control-btn control-jump" data-move="up">SPRING</button>
+              <button class="control-btn control-right" data-move="right">→</button>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- SHOP -->
+    <section class="page" id="page-shop">
+
+      <div class="page-head panel">
+        <button class="back-btn" onclick="goBackFromSubpage()">←</button>
+
+        <div style="flex:1;">
+          <h2>Kikkerwinkel 🛒</h2>
+          <p>
+            Speel Kikker Klikker, verdien punten en verzamel nieuwe kikkers.
+          </p>
+        </div>
+
+        <div class="stat-pill" id="shopPoints">🪰 0 punten</div>
+      </div>
+
+      <div class="shop-grid" id="shopGrid"></div>
+
+      <div class="next-unlock" id="nextUnlock"></div>
+
+    </section>
+
+    <!-- DONATION PAGE -->
+    <section class="page" id="page-donate">
+
+      <div class="page-head panel" style="margin-bottom:16px;">
+        <button class="back-btn" onclick="goBackFromSubpage()">←</button>
+
+        <div style="flex:1;">
+          <h2>Help de paddentrek 🐸</h2>
+          <p>Een demo-pagina voor jullie informaticaproject.</p>
+        </div>
+
+        <div class="stat-pill">🎁 +100 punten</div>
+      </div>
+
+      <div class="donate-layout">
+
+        <div class="donate-main panel">
+          <div class="donate-frog">🐸🌙</div>
+
+          <h2>Help kikkers veilig oversteken</h2>
+
+          <p>
+            Elk voorjaar trekken padden, kikkers en salamanders naar het water
+            om zich voort te planten. Tijdens die paddentrek moeten ze soms
+            drukke wegen oversteken.
+          </p>
+
+          <p>
+            In onze arcade kun je een <strong>demo-donatie</strong> doen.
+            Er wordt geen echt geld afgeschreven. Na iedere demo-donatie
+            ontvang je <strong>100 punten</strong> voor de Kikkerwinkel.
+          </p>
+
+          <div class="donation-buttons">
+            <button class="donation-amount" onclick="donateDemo('€ 1,00')">
+              € 1,00
+            </button>
+
+            <button class="donation-amount" onclick="donateDemo('€ 2,50')">
+              € 2,50
+            </button>
+
+            <button class="donation-amount" onclick="donateDemo('€ 5,00')">
+              € 5,00
+            </button>
+
+            <button class="donation-amount" onclick="donateDemo('€ 10,00')">
+              € 10,00
+            </button>
+          </div>
+
+          <div class="bonus-box">
+            🎁 Bonus: iedere demo-donatie levert 100 punten op.
+          </div>
+
+          <div class="demo-notice">
+            Dit is uitsluitend een demonstratie. Er vinden geen betalingen,
+            bestellingen of echte donaties plaats.
+          </div>
+        </div>
+
+        <aside class="donate-side panel">
+          <h3>🌿 Waarom een paddentrek?</h3>
+
+          <ul class="fact-list">
+            <li>Amfibieën trekken naar water om zich voort te planten.</li>
+            <li>Veel dieren leggen daarbij dezelfde route ieder jaar opnieuw af.</li>
+            <li>Wegen kunnen een gevaarlijk obstakel vormen.</li>
+            <li>Vrijwilligers helpen op veel plaatsen dieren veilig oversteken.</li>
+            <li>In de Kikker Arcade koppelen we dit thema aan het spel.</li>
+          </ul>
+
+          <div style="font-size:90px;text-align:center;margin-top:25px;">
+            🌙🐸🌿
+          </div>
+        </aside>
+
+      </div>
+
+    </section>
+
+  </div>
+
+  <!-- GENERIC CONFIRM MODAL -->
+  <div class="modal-backdrop" id="confirmModal">
+    <div class="modal-box">
+      <div class="modal-icon" id="modalIcon">🐸</div>
+      <h2 id="modalTitle">Weet je het zeker?</h2>
+      <p id="modalText"></p>
+
+      <div class="modal-buttons">
+        <button class="btn btn-green" id="modalYes">
+          Ja
+        </button>
+
+        <button class="btn btn-secondary" id="modalCancel">
+          Annuleren
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    "use strict";
+
+    /* ==========================================================
+       KIKKER ARCADE - DATA
+       ========================================================== */
+
+    const STORAGE_KEY = "kikkerArcade_v1";
+
+    const DEFAULT_STATE = {
+      points: 0,
+      level: 1,
+      maxLevel: 1,
+      ownedSkins: ["brown"],
+      selectedSkin: "brown",
+      demoDonations: 0
+    };
+
+    const SKINS = [
+      {
+        id: "brown",
+        name: "Bruine kikker",
+        price: 0,
+        currency: "points",
+        unlock: 1,
+        emoji: "🐸",
+        description: "De klassieke starterkikker. Gratis en altijd beschikbaar.",
+        body: "#795548",
+        belly: "#a9826a",
+        spots: "#4f352e"
+      },
+      {
+        id: "green",
+        name: "Groene kikker",
+        price: 35,
+        currency: "points",
+        unlock: 1,
+        emoji: "🐸",
+        description: "Frisgroen en klaar om de rivier te trotseren.",
+        body: "#55bd4f",
+        belly: "#a5e47e",
+        spots: "#287d35"
+      },
+      {
+        id: "blue",
+        name: "Blauwe pijlgifkikker",
+        price: 90,
+        currency: "points",
+        unlock: 2,
+        emoji: "🔵🐸",
+        description: "Felblauw met donkere stippen. Unlock vanaf level 2.",
+        body: "#2a9df4",
+        belly: "#68cdfc",
+        spots: "#172856"
+      },
+      {
+        id: "tomato",
+        name: "Tomatenkikker",
+        price: 150,
+        currency: "points",
+        unlock: 3,
+        emoji: "🍅🐸",
+        description: "Rood, rond en opvallend. Unlock vanaf level 3.",
+        body: "#e54b3d",
+        belly: "#ff8766",
+        spots: "#9f271e"
+      },
+      {
+        id: "redblue",
+        name: "Rood-blauwe pijlgifkikker",
+        price: 280,
+        currency: "points",
+        unlock: 5,
+        emoji: "🔴🔵",
+        description: "Een zeldzame rood-blauwe kikker. Unlock vanaf level 5.",
+        body: "#ef3340",
+        belly: "#38aaf5",
+        spots: "#173d84"
+      },
+      {
+        id: "gold",
+        name: "Gouden pijlgifkikker",
+        price: 350,
+        currency: "points",
+        unlock: 7,
+        emoji: "✨🐸",
+        description: "Goudgeel en moeilijk te missen. Unlock vanaf level 7.",
+        body: "#f4c430",
+        belly: "#ffe774",
+        spots: "#744e12"
+      },
+      {
+        id: "haribo",
+        name: "Haribo snoepkikker",
+        price: 1.25,
+        currency: "money",
+        unlock: 8,
+        emoji: "🍬🐸",
+        description: "Een zoete snoepkikker. Demo-aankoop vanaf level 8.",
+        body: "#79d438",
+        belly: "#fff2ba",
+        spots: "#db473d"
+      },
+      {
+        id: "kingtoad",
+        name: "Dikke pad met kroontje",
+        price: 2.50,
+        currency: "money",
+        unlock: 10,
+        emoji: "👑🐸",
+        description: "De ultieme kikkerbaas. Demo-aankoop vanaf level 10.",
+        body: "#6f6041",
+        belly: "#b89e63",
+        spots: "#40361f",
+        crown: true,
+        fat: true
+      }
+    ];
+
+    let state = loadState();
+    let previousPage = "home";
+
+
+    /* ==========================================================
+       STATE
+       ========================================================== */
+
+    function loadState() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+
+        if (!saved) {
+          return structuredCloneSafe(DEFAULT_STATE);
+        }
+
+        const merged = {
+          ...structuredCloneSafe(DEFAULT_STATE),
+          ...saved
+        };
+
+        if (!Array.isArray(merged.ownedSkins)) {
+          merged.ownedSkins = ["brown"];
+        }
+
+        if (!merged.ownedSkins.includes("brown")) {
+          merged.ownedSkins.push("brown");
+        }
+
+        if (!SKINS.some(s => s.id === merged.selectedSkin)) {
+          merged.selectedSkin = "brown";
+        }
+
+        return merged;
+
+      } catch (error) {
+        return structuredCloneSafe(DEFAULT_STATE);
+      }
+    }
+
+    function structuredCloneSafe(obj) {
+      return JSON.parse(JSON.stringify(obj));
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      updateStats();
+    }
+
+    function addPoints(amount) {
+      state.points += amount;
+      saveState();
+    }
+
+    function updateStats() {
+      document.getElementById("headerPoints").textContent =
+        "🪰 " + state.points + " punten";
+
+      document.getElementById("headerLevel").textContent =
+        "🏆 Level " + state.maxLevel;
+
+      const shopPoints = document.getElementById("shopPoints");
+
+      if (shopPoints) {
+        shopPoints.textContent = "🪰 " + state.points + " punten";
+      }
+    }
+
+
+    /* ==========================================================
+       NAVIGATION
+       ========================================================== */
+
+    function navigate(page) {
+      const current = getCurrentPage();
+
+      if (current !== page) {
+        previousPage = current;
+      }
+
+      document.querySelectorAll(".page").forEach(el => {
+        el.classList.remove("active");
+      });
+
+      const target = document.getElementById("page-" + page);
+
+      if (target) {
+        target.classList.add("active");
+      }
+
+      if (page === "shop") {
+        setRiverSound(false);
+        renderShop();
+      }
+
+      if (page === "donate") {
+        setRiverSound(false);
+      }
+
+      if (page === "home") {
+        setRiverSound(false);
+      }
+
+      if (page === "game") {
+        setRiverSound(true);
+      }
+
+      window.scrollTo(0, 0);
+    }
+
+    function getCurrentPage() {
+      const active = document.querySelector(".page.active");
+      return active ? active.id.replace("page-", "") : "home";
+    }
+
+    function goBackFromSubpage() {
+      if (previousPage === "shop" || previousPage === "donate") {
+        navigate("home");
+      } else {
+        navigate(previousPage || "home");
+      }
+    }
+
+    function openDonationPage() {
+      initAudio();
+      playCroak();
+      navigate("donate");
+    }
+
+
+    /* ==========================================================
+       SHOP
+       ========================================================== */
+
+    function renderShop() {
+      updateStats();
+
+      const grid = document.getElementById("shopGrid");
+      const unlocked = SKINS.filter(skin => state.maxLevel >= skin.unlock);
+
+      grid.innerHTML = "";
+
+      unlocked.forEach(skin => {
+        const owned = state.ownedSkins.includes(skin.id);
+        const selected = state.selectedSkin === skin.id;
+
+        const card = document.createElement("article");
+        card.className = "skin-card panel";
+
+        let badge = "";
+
+        if (selected) {
+          badge = '<div class="selected-badge">In gebruik</div>';
+        } else if (owned) {
+          badge = '<div class="owned-badge">Gekocht</div>';
+        }
+
+        let priceText = "";
+
+        if (skin.currency === "points") {
+          priceText = skin.price === 0
+            ? "Gratis"
+            : "🪰 " + skin.price + " punten";
+        } else {
+          priceText = "€ " + skin.price.toFixed(2).replace(".", ",");
+        }
+
+        let buttonText = "";
+        let disabled = false;
+
+        if (selected) {
+          buttonText = "✓ Geselecteerd";
+          disabled = true;
+        } else if (owned) {
+          buttonText = "Gebruik deze skin";
+        } else if (skin.currency === "money") {
+          buttonText = "Demo-kopen voor " + priceText;
+        } else if (skin.price === 0) {
+          buttonText = "Gratis gebruiken";
+        } else {
+          buttonText = "Koop voor " + skin.price + "p";
+        }
+
+        card.innerHTML = `
+          ${badge}
+
+          <div class="skin-preview">
+            <span>${skin.emoji}</span>
+          </div>
+
+          <h3>${skin.name}</h3>
+
+          <p>${skin.description}</p>
+
+          <div class="skin-price">
+            ${priceText}
+          </div>
+
+          <button
+            class="btn ${skin.currency === "money" ? "btn-primary" : "btn-green"}"
+            ${disabled ? "disabled" : ""}
+            onclick="handleSkinAction('${skin.id}')">
+            ${buttonText}
+          </button>
+        `;
+
+        grid.appendChild(card);
+      });
+
+      const locked = SKINS.filter(skin => state.maxLevel < skin.unlock);
+      const nextUnlock = document.getElementById("nextUnlock");
+
+      if (locked.length) {
+        const nextLevel = Math.min(...locked.map(skin => skin.unlock));
+
+        nextUnlock.innerHTML = `
+          🔒 Er zitten nog geheime kikkers verstopt in de winkel.
+          Bereik <strong>level ${nextLevel}</strong> om de volgende skin
+          zichtbaar te maken.
+        `;
+      } else {
+        nextUnlock.innerHTML =
+          "👑 Je hebt alle beschikbare kikker-skins ontdekt!";
+      }
+    }
+
+    function handleSkinAction(id) {
+      const skin = SKINS.find(s => s.id === id);
+
+      if (!skin) return;
+
+      if (state.maxLevel < skin.unlock) {
+        showToast("Deze skin is nog niet vrijgespeeld.");
+        return;
+      }
+
+      if (state.ownedSkins.includes(id)) {
+        state.selectedSkin = id;
+        saveState();
+        renderShop();
+        showToast(skin.name + " is nu jouw actieve kikker.");
+        return;
+      }
+
+      if (skin.currency === "money") {
+        confirmMoneySkin(skin);
+        return;
+      }
+
+      if (state.points < skin.price) {
+        showToast(
+          "Je hebt nog " +
+          (skin.price - state.points) +
+          " punten extra nodig."
+        );
+        return;
+      }
+
+      state.points -= skin.price;
+      state.ownedSkins.push(id);
+      state.selectedSkin = id;
+
+      saveState();
+      renderShop();
+
+      showToast("🎉 " + skin.name + " gekocht!");
+    }
+
+    function confirmMoneySkin(skin) {
+      openConfirmModal({
+        icon: skin.emoji,
+        title: "Demo-aankoop",
+        text:
+          "Weet u zeker dat u het product " +
+          skin.name +
+          " wilt kopen?",
+        yesText: "Ja",
+        cancelText: "Annuleren",
+        onYes: function() {
+          if (!state.ownedSkins.includes(skin.id)) {
+            state.ownedSkins.push(skin.id);
+          }
+
+          state.selectedSkin = skin.id;
+
+          saveState();
+          renderShop();
+
+          showToast(
+            "Demo-aankoop voltooid. Er is geen echt geld afgeschreven."
+          );
+        }
+      });
+    }
+
+
+    /* ==========================================================
+       DONATION DEMO
+       ========================================================== */
+
+    function donateDemo(amount) {
+      initAudio();
+      playCroak();
+
+      openConfirmModal({
+        icon: "🐸💚",
+        title: "Demo-donatie",
+        text:
+          "Wil je een demo-donatie van " +
+          amount +
+          " doen? Dit is alleen een demonstratie: er wordt geen echt geld afgeschreven.",
+        yesText: "Ja",
+        cancelText: "Annuleren",
+        onYes: function() {
+          state.demoDonations += 1;
+          addPoints(100);
+
+          showToast(
+            "💚 Bedankt! Je ontvangt 100 bonuspunten. Dit was een demo-donatie."
+          );
+        }
+      });
+    }
+
+
+    /* ==========================================================
+       MODAL + TOAST
+       ========================================================== */
+
+    let modalYesHandler = null;
+
+    function openConfirmModal(options) {
+      const modal = document.getElementById("confirmModal");
+
+      document.getElementById("modalIcon").textContent =
+        options.icon || "🐸";
+
+      document.getElementById("modalTitle").textContent =
+        options.title || "Weet je het zeker?";
+
+      document.getElementById("modalText").textContent =
+        options.text || "";
+
+      document.getElementById("modalYes").textContent =
+        options.yesText || "Ja";
+
+      document.getElementById("modalCancel").textContent =
+        options.cancelText || "Annuleren";
+
+      modalYesHandler = options.onYes || null;
+
+      modal.classList.add("show");
+    }
+
+    function closeConfirmModal() {
+      document.getElementById("confirmModal").classList.remove("show");
+      modalYesHandler = null;
+    }
+
+    document.getElementById("modalYes").addEventListener("click", function() {
+      const handler = modalYesHandler;
+      closeConfirmModal();
+
+      if (handler) {
+        handler();
+      }
+    });
+
+    document.getElementById("modalCancel").addEventListener(
+      "click",
+      closeConfirmModal
+    );
+
+    document.getElementById("confirmModal").addEventListener(
+      "click",
+      function(event) {
+        if (event.target.id === "confirmModal") {
+          closeConfirmModal();
+        }
+      }
+    );
+
+    let toastTimer = null;
+
+    function showToast(message) {
+      const toast = document.getElementById("toast");
+
+      toast.textContent = message;
+      toast.classList.add("show");
+
+      clearTimeout(toastTimer);
+
+      toastTimer = setTimeout(() => {
+        toast.classList.remove("show");
+      }, 2800);
+    }
+
+
+    /* ==========================================================
+       AUDIO
+       Geen externe bestanden nodig.
+       ========================================================== */
+
+    let audioContext = null;
+    let riverSource = null;
+    let riverGain = null;
+
+    function initAudio() {
+      if (!audioContext) {
+        const AudioCtx =
+          window.AudioContext || window.webkitAudioContext;
+
+        if (!AudioCtx) return;
+
+        audioContext = new AudioCtx();
+      }
+
+      if (audioContext.state === "suspended") {
+        audioContext.resume();
+      }
+    }
+
+    function playCroak() {
+      initAudio();
+
+      if (!audioContext) return;
+
+      const now = audioContext.currentTime;
+
+      const gain = audioContext.createGain();
+      gain.gain.setValueAtTime(0.0001, now);
+      gain.gain.exponentialRampToValueAtTime(0.16, now + 0.025);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.23);
+      gain.connect(audioContext.destination);
+
+      const osc1 = audioContext.createOscillator();
+      osc1.type = "square";
+      osc1.frequency.setValueAtTime(165, now);
+      osc1.frequency.exponentialRampToValueAtTime(105, now + 0.2);
+      osc1.connect(gain);
+
+      const osc2 = audioContext.createOscillator();
+      osc2.type = "sine";
+      osc2.frequency.setValueAtTime(95, now);
+      osc2.frequency.exponentialRampToValueAtTime(70, now + 0.19);
+      osc2.connect(gain);
+
+      osc1.start(now);
+      osc2.start(now);
+
+      osc1.stop(now + 0.24);
+      osc2.stop(now + 0.24);
+    }
+
+    function startRiverSound() {
+      initAudio();
+
+      if (!audioContext || riverSource) return;
+
+      const bufferLength =
+        audioContext.sampleRate * 2;
+
+      const buffer =
+        audioContext.createBuffer(
+          1,
+          bufferLength,
+          audioContext.sampleRate
+        );
+
+      const data = buffer.getChannelData(0);
+
+      let last = 0;
+
+      for (let i = 0; i < bufferLength; i++) {
+        const white = Math.random() * 2 - 1;
+        last = last * 0.96 + white * 0.04;
+        data[i] = last;
+      }
+
+      riverSource = audioContext.createBufferSource();
+      riverSource.buffer = buffer;
+      riverSource.loop = true;
+
+      const filter = audioContext.createBiquadFilter();
+      filter.type = "lowpass";
+      filter.frequency.value = 780;
+
+      riverGain = audioContext.createGain();
+      riverGain.gain.value = 0.055;
+
+      riverSource.connect(filter);
+      filter.connect(riverGain);
+      riverGain.connect(audioContext.destination);
+
+      riverSource.start();
+    }
+
+    function stopRiverSound() {
+      if (riverSource) {
+        try {
+          riverSource.stop();
+        } catch (error) {}
+
+        riverSource.disconnect();
+        riverSource = null;
+      }
+
+      riverGain = null;
+    }
+
+    function setRiverSound(on) {
+      if (on) {
+        startRiverSound();
+      } else {
+        stopRiverSound();
+      }
+    }
+
+
+    /* ==========================================================
+       GAME SETUP
+       ========================================================== */
+
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+
+    const CW = canvas.width;
+    const CH = canvas.height;
+    const BANK_HEIGHT = 72;
+
+    const GAME = {
+      running: false,
+      level: 1,
+      laneCount: 6,
+      laneHeight: 70,
+      platforms: [],
+      frog: {
+        x: CW / 2,
+        row: -1,
+        supportId: null,
+        jump: null
+      },
+      lastTime: 0,
+      animationFrame: null,
+      platformCounter: 0
+    };
+
+    function startGameFromHome() {
+      initAudio();
+      navigate("game");
+      startLevel(state.level || 1);
+    }
+
+    function startLevel(level) {
+      cancelAnimationFrame(GAME.animationFrame);
+
+      GAME.level = Math.max(1, level);
+      GAME.running = true;
+
+      GAME.laneCount =
+        Math.min(5 + Math.floor((GAME.level - 1) / 3), 8);
+
+      GAME.laneHeight =
+        (CH - BANK_HEIGHT * 2) / GAME.laneCount;
+
+      GAME.platforms = [];
+
+      GAME.frog = {
+        x: CW / 2,
+        row: -1,
+        supportId: null,
+        jump: null
+      };
+
+      generatePlatforms();
+
+      document.getElementById("gameLevelLabel").textContent =
+        "Level " + GAME.level;
+
+      hideGameMessage();
+
+      GAME.lastTime = performance.now();
+
+      setRiverSound(true);
+
+      GAME.animationFrame =
+        requestAnimationFrame(gameLoop);
+    }
+
+    function generatePlatforms() {
+      GAME.platformCounter = 0;
+
+      for (let lane = 0; lane < GAME.laneCount; lane++) {
+
+        const mostlyLilies =
+          lane % 2 === 0 ? Math.random() < .7 : Math.random() < .28;
+
+        const count =
+          mostlyLilies ? 5 : 4;
+
+        const direction =
+          lane % 2 === 0 ? 1 : -1;
+
+        const baseSpeed =
+          31 +
+          GAME.level * 3.5 +
+          lane * 2.1 +
+          Math.random() * 10;
+
+        for (let i = 0; i < count; i++) {
+
+          const type =
+            mostlyLilies
+              ? (Math.random() < .8 ? "lily" : "log")
+              : (Math.random() < .82 ? "log" : "lily");
+
+          const width =
+            type === "log"
+              ? 138 + Math.random() * 55
+              : 92 + Math.random() * 15;
+
+          let x =
+            (i / count) * CW +
+            Math.random() * 75 -
+            38;
+
+          const platform = {
+            id: ++GAME.platformCounter,
+            lane: lane,
+            type: type,
+            x: x,
+            width: width,
+            speed: baseSpeed * direction,
+            fly: maybeCreateFly()
+          };
+
+          GAME.platforms.push(platform);
+        }
+      }
+    }
+
+    function maybeCreateFly() {
+      const flyChance =
+        Math.min(
+          0.18 + (GAME.level - 1) * 0.035,
+          0.65
+        );
+
+      if (Math.random() > flyChance) {
+        return null;
+      }
+
+      if (GAME.level <= 5) {
+        if (Math.random() < 0.76) {
+          return {
+            type: "small",
+            points: 1,
+            collected: false
+          };
+        }
+
+        return {
+          type: "large",
+          points: 2,
+          collected: false
+        };
+      }
+
+      const kingChance =
+        Math.min(
+          0.045 + (GAME.level - 6) * 0.018,
+          0.19
+        );
+
+      const roll = Math.random();
+
+      if (roll < kingChance) {
+        return {
+          type: "king",
+          points: 5,
+          collected: false
+        };
+      }
+
+      if (roll < kingChance + 0.30) {
+        return {
+          type: "large",
+          points: 2,
+          collected: false
+        };
+      }
+
+      return {
+        type: "small",
+        points: 1,
+        collected: false
+      };
+    }
+
+
+    /* ==========================================================
+       GAME LOOP
+       ========================================================== */
+
+    function gameLoop(timestamp) {
+      const dt =
+        Math.min((timestamp - GAME.lastTime) / 1000, 0.04);
+
+      GAME.lastTime = timestamp;
+
+      updateGame(dt, timestamp);
+      drawGame(timestamp);
+
+      if (
+        getCurrentPage() === "game" &&
+        (GAME.running || GAME.frog.jump)
+      ) {
+        GAME.animationFrame =
+          requestAnimationFrame(gameLoop);
+      }
+    }
+
+    function updateGame(dt, timestamp) {
+      updatePlatforms(dt);
+
+      if (!GAME.running) {
+        updateJumpAnimation(timestamp);
+        return;
+      }
+
+      if (GAME.frog.jump) {
+        updateJumpAnimation(timestamp);
+        return;
+      }
+
+      if (GAME.frog.row >= 0 &&
+          GAME.frog.row < GAME.laneCount) {
+
+        const support =
+          GAME.platforms.find(
+            p => p.id === GAME.frog.supportId
+          );
+
+        if (!support) {
+          loseGame();
+          return;
+        }
+
+        const movement =
+          support.speed * dt;
+
+        support._frogMovement = movement;
+        GAME.frog.x += movement;
+
+        if (
+          GAME.frog.x < -25 ||
+          GAME.frog.x > CW + 25
+        ) {
+          loseGame();
+        }
+      }
+    }
+
+    function updatePlatforms(dt) {
+      GAME.platforms.forEach(platform => {
+        platform._frogMovement = 0;
+
+        platform.x += platform.speed * dt;
+
+        if (platform.speed > 0) {
+          if (platform.x > CW + 80) {
+
+            if (GAME.frog.supportId === platform.id) {
+              GAME.frog.supportId = null;
+            }
+
+            platform.x = -platform.width - 60;
+          }
+        } else {
+          if (platform.x + platform.width < -80) {
+
+            if (GAME.frog.supportId === platform.id) {
+              GAME.frog.supportId = null;
+            }
+
+            platform.x = CW + 60;
+          }
+        }
+      });
+    }
+
+    function updateJumpAnimation(timestamp) {
+      const jump = GAME.frog.jump;
+
+      if (!jump) return;
+
+      const progress =
+        Math.min(
+          (timestamp - jump.startedAt) / jump.duration,
+          1
+        );
+
+      if (progress >= 1) {
+        GAME.frog.x = jump.toX;
+        GAME.frog.row = jump.toRow;
+        GAME.frog.jump = null;
+
+        resolveLanding();
+      }
+    }
+
+
+    /* ==========================================================
+       PLAYER MOVEMENT
+       ========================================================== */
+
+    function moveFrog(direction) {
+      if (
+        getCurrentPage() !== "game" ||
+        !GAME.running ||
+        GAME.frog.jump
+      ) {
+        return;
+      }
+
+      initAudio();
+      playCroak();
+
+      let targetRow = GAME.frog.row;
+      let targetX = GAME.frog.x;
+
+      if (direction === "up") {
+        targetRow += 1;
+      }
+
+      if (direction === "down") {
+        targetRow -= 1;
+      }
+
+      if (direction === "left") {
+        targetX -= 68;
+      }
+
+      if (direction === "right") {
+        targetX += 68;
+      }
+
+      targetRow =
+        Math.max(-1, Math.min(GAME.laneCount, targetRow));
+
+      targetX =
+        Math.max(24, Math.min(CW - 24, targetX));
+
+      if (
+        targetRow === GAME.frog.row &&
+        targetX === GAME.frog.x
+      ) {
+        return;
+      }
+
+      GAME.frog.supportId = null;
+
+      GAME.frog.jump = {
+        fromX: GAME.frog.x,
+        fromRow: GAME.frog.row,
+        toX: targetX,
+        toRow: targetRow,
+        startedAt: performance.now(),
+        duration: 185
+      };
+    }
+
+    function resolveLanding() {
+      if (GAME.frog.row === GAME.laneCount) {
+        winLevel();
+        return;
+      }
+
+      if (GAME.frog.row === -1) {
+        GAME.frog.supportId = null;
+        return;
+      }
+
+      const platform =
+        getPlatformAt(
+          GAME.frog.row,
+          GAME.frog.x
+        );
+
+      if (!platform) {
+        loseGame();
+        return;
+      }
+
+      GAME.frog.supportId = platform.id;
+
+      collectFly(platform);
+    }
+
+    function getPlatformAt(row, x) {
+      return GAME.platforms.find(platform => {
+        if (platform.lane !== row) return false;
+
+        const padding =
+          platform.type === "lily" ? 8 : 6;
+
+        return (
+          x >= platform.x - padding &&
+          x <= platform.x + platform.width + padding
+        );
+      });
+    }
+
+    function collectFly(platform) {
+      if (
+        !platform.fly ||
+        platform.fly.collected
+      ) {
+        return;
+      }
+
+      platform.fly.collected = true;
+
+      const amount =
+        platform.fly.points;
+
+      addPoints(amount);
+
+      createFloatingScore(
+        "+" + amount,
+        GAME.frog.x,
+        rowToY(GAME.frog.row)
+      );
+    }
+
+
+    /* ==========================================================
+       LEVEL WIN / GAME OVER
+       ========================================================== */
+
+    function winLevel() {
+      if (!GAME.running) return;
+
+      GAME.running = false;
+
+      addPoints(10);
+
+      state.level = GAME.level + 1;
+      state.maxLevel =
+        Math.max(state.maxLevel, GAME.level + 1);
+
+      saveState();
+
+      showGameMessage({
+        icon: "🏆🐸",
+        title: "Level gehaald!",
+        text:
+          "Je bent veilig aan de overkant gekomen. +10 punten! " +
+          "Op naar level " +
+          state.level +
+          ".",
+        button: "Volgende level",
+        action: function() {
+          startLevel(state.level);
+        }
+      });
+    }
+
+    function loseGame() {
+      if (!GAME.running) return;
+
+      GAME.running = false;
+      GAME.frog.supportId = null;
+
+      showGameMessage({
+        icon: "💦🐸",
+        title: "PLONS!",
+        text:
+          "De kikker is in het water gevallen. Je punten blijven bewaard. Probeer level " +
+          GAME.level +
+          " opnieuw.",
+        button: "Opnieuw proberen",
+        action: function() {
+          startLevel(GAME.level);
+        }
+      });
+    }
+
+    function showGameMessage(options) {
+      document.getElementById("messageIcon").textContent =
+        options.icon;
+
+      document.getElementById("messageTitle").textContent =
+        options.title;
+
+      document.getElementById("messageText").textContent =
+        options.text;
+
+      const button =
+        document.getElementById("messageButton");
+
+      button.textContent =
+        options.button;
+
+      button.onclick =
+        options.action;
+
+      document.getElementById("gameMessage")
+        .classList.add("show");
+    }
+
+    function hideGameMessage() {
+      document.getElementById("gameMessage")
+        .classList.remove("show");
+    }
+
+
+    /* ==========================================================
+       GAME DRAWING
+       ========================================================== */
+
+    function drawGame(timestamp) {
+      ctx.clearRect(0, 0, CW, CH);
+
+      drawRiver(timestamp);
+      drawBanks();
+      drawPlatforms();
+      drawFinish();
+      drawFrog();
+      drawHud();
+    }
+
+    function drawRiver(timestamp) {
+      const riverTop = BANK_HEIGHT;
+      const riverBottom = CH - BANK_HEIGHT;
+
+      const gradient =
+        ctx.createLinearGradient(
+          0,
+          riverTop,
+          0,
+          riverBottom
+        );
+
+      gradient.addColorStop(0, "#39b5df");
+      gradient.addColorStop(.5, "#168ec5");
+      gradient.addColorStop(1, "#32afd8");
+
+      ctx.fillStyle = gradient;
+      ctx.fillRect(
+        0,
+        riverTop,
+        CW,
+        riverBottom - riverTop
+      );
+
+      ctx.save();
+
+      ctx.globalAlpha = .22;
+      ctx.strokeStyle = "#ffffff";
+      ctx.lineWidth = 3;
+
+      const waveOffset =
+        (timestamp / 25) % 90;
+
+      for (
+        let y = riverTop + 20;
+        y < riverBottom;
+        y += 36
+      ) {
+        ctx.beginPath();
+
+        for (
+          let x = -100;
+          x < CW + 100;
+          x += 90
+        ) {
+          ctx.moveTo(x + waveOffset, y);
+          ctx.quadraticCurveTo(
+            x + 22 + waveOffset,
+            y - 6,
+            x + 45 + waveOffset,
+            y
+          );
+
+          ctx.quadraticCurveTo(
+            x + 67 + waveOffset,
+            y + 6,
+            x + 90 + waveOffset,
+            y
+          );
+        }
+
+        ctx.stroke();
+      }
+
+      ctx.restore();
+    }
+
+    function drawBanks() {
+      ctx.fillStyle = "#71bd59";
+      ctx.fillRect(0, 0, CW, BANK_HEIGHT);
+
+      ctx.fillStyle = "#83ca64";
+      ctx.fillRect(
+        0,
+        CH - BANK_HEIGHT,
+        CW,
+        BANK_HEIGHT
+      );
+
+      ctx.fillStyle = "#4d983e";
+      ctx.fillRect(
+        0,
+        BANK_HEIGHT - 8,
+        CW,
+        8
+      );
+
+      ctx.fillRect(
+        0,
+        CH - BANK_HEIGHT,
+        CW,
+        8
+      );
+
+      for (let x = 20; x < CW; x += 70) {
+        ctx.fillStyle =
+          x % 140 === 20
+            ? "#f6a7c9"
+            : "#fff09a";
+
+        ctx.beginPath();
+        ctx.arc(x, 26, 5, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.arc(x + 8, CH - 27, 4, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    function drawFinish() {
+      ctx.save();
+
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+
+      ctx.fillStyle = "rgba(255,255,255,.84)";
+      roundRect(
+        ctx,
+        CW / 2 - 110,
+        13,
+        220,
+        43,
+        16,
+        true,
+        false
+      );
+
+      ctx.fillStyle = "#154b3b";
+      ctx.font = "900 18px Arial";
+      ctx.fillText(
+        "🏁 OVERKANT +10",
+        CW / 2,
+        35
+      );
+
+      ctx.restore();
+    }
+
+    function drawPlatforms() {
+      GAME.platforms.forEach(platform => {
+
+        const y =
+          rowToY(platform.lane);
+
+        if (platform.type === "log") {
+          drawLog(platform, y);
+        } else {
+          drawLily(platform, y);
+        }
+
+        if (
+          platform.fly &&
+          !platform.fly.collected
+        ) {
+          drawFly(
+            platform.x + platform.width / 2,
+            y - 22,
+            platform.fly
+          );
+        }
+      });
+    }
+
+    function drawLog(platform, y) {
+      const h = 33;
+
+      ctx.save();
+
+      ctx.fillStyle = "#764b2a";
+      roundRect(
+        ctx,
+        platform.x,
+        y - h / 2,
+        platform.width,
+        h,
+        14,
+        true,
+        false
+      );
+
+      ctx.fillStyle = "#99633b";
+      roundRect(
+        ctx,
+        platform.x + 7,
+        y - h / 2 + 5,
+        platform.width - 14,
+        8,
+        7,
+        true,
+        false
+      );
+
+      ctx.strokeStyle = "#54341e";
+      ctx.lineWidth = 3;
+
+      ctx.beginPath();
+      ctx.arc(
+        platform.x + 15,
+        y,
+        9,
+        0,
+        Math.PI * 2
+      );
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.arc(
+        platform.x + platform.width - 15,
+        y,
+        9,
+        0,
+        Math.PI * 2
+      );
+      ctx.stroke();
+
+      ctx.restore();
+    }
+
+    function drawLily(platform, y) {
+      const radius =
+        platform.width / 2;
+
+      const cx =
+        platform.x + radius;
+
+      ctx.save();
+
+      ctx.fillStyle = "#52a94c";
+
+      ctx.beginPath();
+      ctx.arc(
+        cx,
+        y,
+        radius * .72,
+        0,
+        Math.PI * 2
+      );
+
+      ctx.lineTo(cx, y);
+      ctx.arc(
+        cx,
+        y,
+        radius * .72,
+        -0.38,
+        0.38
+      );
+
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.strokeStyle = "#36873d";
+      ctx.lineWidth = 3;
+      ctx.stroke();
+
+      if (platform.id % 4 === 0) {
+        ctx.font = "23px Arial";
+        ctx.textAlign = "center";
+        ctx.fillText("🌸", cx, y + 7);
+      }
+
+      ctx.restore();
+    }
+
+    function drawFly(x, y, fly) {
+      ctx.save();
+
+      let size = 5;
+
+      if (fly.type === "large") {
+        size = 8;
+      }
+
+      if (fly.type === "king") {
+        size = 10;
+      }
+
+      ctx.fillStyle =
+        "rgba(255,255,255,.78)";
+
+      ctx.beginPath();
+      ctx.ellipse(
+        x - size,
+        y - 2,
+        size,
+        size * .55,
+        -.3,
+        0,
+        Math.PI * 2
+      );
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.ellipse(
+        x + size,
+        y - 2,
+        size,
+        size * .55,
+        .3,
+        0,
+        Math.PI * 2
+      );
+      ctx.fill();
+
+      ctx.fillStyle =
+        fly.type === "king"
+          ? "#ffcb32"
+          : "#24282c";
+
+      ctx.beginPath();
+      ctx.ellipse(
+        x,
+        y + 1,
+        size * .55,
+        size,
+        0,
+        0,
+        Math.PI * 2
+      );
+      ctx.fill();
+
+      ctx.fillStyle = "#c82f31";
+
+      ctx.beginPath();
+      ctx.arc(
+        x - size * .25,
+        y - size * .55,
+        1.5,
+        0,
+        Math.PI * 2
+      );
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.arc(
+        x + size * .25,
+        y - size * .55,
+        1.5,
+        0,
+        Math.PI * 2
+      );
+      ctx.fill();
+
+      if (fly.type === "king") {
+        ctx.font = "18px Arial";
+        ctx.textAlign = "center";
+        ctx.fillText(
+          "👑",
+          x,
+          y - 13
+        );
+      }
+
+      ctx.restore();
+    }
+
+    function drawFrog() {
+      let x =
+        GAME.frog.x;
+
+      let y =
+        rowToY(GAME.frog.row);
+
+      let jumping = false;
+
+      if (GAME.frog.jump) {
+        jumping = true;
+
+        const jump =
+          GAME.frog.jump;
+
+        const now =
+          performance.now();
+
+        const t =
+          Math.min(
+            Math.max(
+              (now - jump.startedAt) / jump.duration,
+              0
+            ),
+            1
+          );
+
+        x =
+          lerp(
+            jump.fromX,
+            jump.toX,
+            easeInOut(t)
+          );
+
+        const fromY =
+          rowToY(jump.fromRow);
+
+        const toY =
+          rowToY(jump.toRow);
+
+        y =
+          lerp(
+            fromY,
+            toY,
+            easeInOut(t)
+          );
+
+        y -= Math.sin(t * Math.PI) * 31;
+      }
+
+      const skin =
+        SKINS.find(
+          s => s.id === state.selectedSkin
+        ) || SKINS[0];
+
+      drawFrogCharacter(
+        x,
+        y,
+        skin,
+        jumping
+      );
+    }
+
+    function drawFrogCharacter(x, y, skin, jumping) {
+      ctx.save();
+      ctx.translate(x, y);
+
+      if (jumping) {
+        ctx.rotate(-0.04);
+      }
+
+      const fat =
+        skin.fat ? 1.22 : 1;
+
+      ctx.scale(fat, fat);
+
+      ctx.fillStyle = skin.body;
+
+      // achterpoten
+      ctx.beginPath();
+      ctx.ellipse(-24, 14, 20, 10, -.45, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.ellipse(24, 14, 20, 10, .45, 0, Math.PI * 2);
+      ctx.fill();
+
+      // lijf
+      ctx.beginPath();
+      ctx.ellipse(0, 5, 27, 25, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // buik
+      ctx.fillStyle = skin.belly;
+
+      ctx.beginPath();
+      ctx.ellipse(0, 10, 15, 14, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // ogen
+      ctx.fillStyle = skin.body;
+
+      ctx.beginPath();
+      ctx.arc(-14, -17, 10, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.arc(14, -17, 10, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = "#ffffff";
+
+      ctx.beginPath();
+      ctx.arc(-14, -18, 6.2, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.arc(14, -18, 6.2, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = "#182522";
+
+      ctx.beginPath();
+      ctx.arc(-13, -17, 3, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.arc(13, -17, 3, 0, Math.PI * 2);
+      ctx.fill();
+
+      // stippen
+      ctx.fillStyle = skin.spots;
+
+      ctx.beginPath();
+      ctx.arc(-18, 3, 4, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.arc(18, 6, 3.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.arc(0, -4, 3, 0, Math.PI * 2);
+      ctx.fill();
+
+      // lach
+      ctx.strokeStyle = "#223832";
+      ctx.lineWidth = 2;
+
+      ctx.beginPath();
+      ctx.arc(0, 2, 9, .2, Math.PI - .2);
+      ctx.stroke();
+
+      if (skin.crown) {
+        ctx.font = "24px Arial";
+        ctx.textAlign = "center";
+        ctx.fillText("👑", 0, -31);
+      }
+
+      ctx.restore();
+    }
+
+    function drawHud() {
+      ctx.save();
+
+      ctx.fillStyle =
+        "rgba(7,44,48,.75)";
+
+      roundRect(
+        ctx,
+        14,
+        CH - 58,
+        170,
+        42,
+        13,
+        true,
+        false
+      );
+
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "900 16px Arial";
+      ctx.textAlign = "left";
+      ctx.textBaseline = "middle";
+
+      ctx.fillText(
+        "🪰 " + state.points + " punten",
+        29,
+        CH - 37
+      );
+
+      ctx.fillStyle =
+        "rgba(7,44,48,.75)";
+
+      roundRect(
+        ctx,
+        CW - 139,
+        CH - 58,
+        125,
+        42,
+        13,
+        true,
+        false
+      );
+
+      ctx.fillStyle = "#ffffff";
+      ctx.textAlign = "center";
+
+      ctx.fillText(
+        "Level " + GAME.level,
+        CW - 77,
+        CH - 37
+      );
+
+      ctx.restore();
+    }
+
+    function rowToY(row) {
+      if (row <= -1) {
+        return CH - BANK_HEIGHT / 2;
+      }
+
+      if (row >= GAME.laneCount) {
+        return BANK_HEIGHT / 2;
+      }
+
+      return (
+        CH -
+        BANK_HEIGHT -
+        GAME.laneHeight * (row + .5)
+      );
+    }
+
+    function createFloatingScore(text, gameX, gameY) {
+      const wrap =
+        document.getElementById("canvasWrap");
+
+      const canvasRect =
+        canvas.getBoundingClientRect();
+
+      const wrapRect =
+        wrap.getBoundingClientRect();
+
+      const scaleX =
+        canvasRect.width / CW;
+
+      const scaleY =
+        canvasRect.height / CH;
+
+      const el =
+        document.createElement("div");
+
+      el.className = "floating-score";
+      el.textContent = text;
+
+      el.style.left =
+        (
+          canvasRect.left -
+          wrapRect.left +
+          gameX * scaleX
+        ) + "px";
+
+      el.style.top =
+        (
+          canvasRect.top -
+          wrapRect.top +
+          gameY * scaleY
+        ) + "px";
+
+      wrap.appendChild(el);
+
+      setTimeout(() => {
+        el.remove();
+      }, 950);
+    }
+
+    function lerp(a, b, t) {
+      return a + (b - a) * t;
+    }
+
+    function easeInOut(t) {
+      return t < .5
+        ? 2 * t * t
+        : 1 - Math.pow(-2 * t + 2, 2) / 2;
+    }
+
+    function roundRect(
+      context,
+      x,
+      y,
+      width,
+      height,
+      radius,
+      fill,
+      stroke
+    ) {
+      radius =
+        Math.min(
+          radius,
+          width / 2,
+          height / 2
+        );
+
+      context.beginPath();
+      context.moveTo(x + radius, y);
+      context.arcTo(
+        x + width,
+        y,
+        x + width,
+        y + height,
+        radius
+      );
+      context.arcTo(
+        x + width,
+        y + height,
+        x,
+        y + height,
+        radius
+      );
+      context.arcTo(
+        x,
+        y + height,
+        x,
+        y,
+        radius
+      );
+      context.arcTo(
+        x,
+        y,
+        x + width,
+        y,
+        radius
+      );
+      context.closePath();
+
+      if (fill) context.fill();
+      if (stroke) context.stroke();
+    }
+
+
+    /* ==========================================================
+       KEYBOARD + TOUCH CONTROLS
+       ========================================================== */
+
+    window.addEventListener(
+      "keydown",
+      function(event) {
+
+        if (getCurrentPage() !== "game") {
+          return;
+        }
+
+        const key =
+          event.key.toLowerCase();
+
+        if (
+          key === "arrowup" ||
+          key === "arrowdown" ||
+          key === "arrowleft" ||
+          key === "arrowright" ||
+          key === " " ||
+          key === "spacebar"
+        ) {
+          event.preventDefault();
+        }
+
+        if (key === "arrowup") {
+          moveFrog("up");
+        }
+
+        if (key === "arrowdown") {
+          moveFrog("down");
+        }
+
+        if (key === "arrowleft") {
+          moveFrog("left");
+        }
+
+        if (key === "arrowright") {
+          moveFrog("right");
+        }
+
+        if (
+          key === " " ||
+          key === "spacebar"
+        ) {
+          moveFrog("up");
+        }
+      },
+      { passive: false }
+    );
+
+    document.querySelectorAll("[data-move]").forEach(button => {
+      button.addEventListener("pointerdown", function(event) {
+        event.preventDefault();
+        moveFrog(this.dataset.move);
+      });
+    });
+
+
+    /* ==========================================================
+       INITIALISE
+       ========================================================== */
+
+    updateStats();
+    renderShop();
+    drawGame(performance.now());
+
+  </script>
+</body>
+</html>
